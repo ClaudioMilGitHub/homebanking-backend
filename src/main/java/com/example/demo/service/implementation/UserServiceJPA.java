@@ -1,6 +1,7 @@
 package com.example.demo.service.implementation;
 
 import com.example.demo.dto.user.BaseUserRequestDTO;
+import com.example.demo.dto.user.LoginDTO;
 import com.example.demo.dto.user.UserDTO;
 import com.example.demo.entity.Role;
 import com.example.demo.entity.User;
@@ -10,7 +11,10 @@ import com.example.demo.service.definition.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -18,10 +22,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserServiceJPA implements UserService {
 
-    @NonNull
-    private UserMapper userMapper;
-    @NonNull
-    private UserRepository userRepository;
+    private final UserMapper userMapper;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
     
     @Override
     public UserDTO findById(long id) throws Exception {
@@ -44,7 +47,7 @@ public class UserServiceJPA implements UserService {
     public void insertBaseUser(BaseUserRequestDTO dto) throws Exception {
         User newUser = userMapper.fromBaseUserRequestDTO(dto);
         newUser.setRole(Role.BASE);
-
+        newUser.setPassword(passwordEncoder.encode(newUser.getPassword()));
         userRepository.save(newUser);
     }
 
@@ -52,4 +55,15 @@ public class UserServiceJPA implements UserService {
     public void deleteUserById(long id) throws Exception {
         userRepository.deleteById(id);
     }
+
+    @Override
+    public UserDTO login(LoginDTO loginDTO) throws Exception {
+        User user = userRepository.findByUsername(loginDTO.getUsername())
+                .orElseThrow(()-> new EntityNotFoundException("user not found"));
+        if(passwordEncoder.matches(loginDTO.getPassword(), user.getPassword())) {
+            return userMapper.toUserDTO(user);
+        }
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Password Errata");
+    }
+
 }

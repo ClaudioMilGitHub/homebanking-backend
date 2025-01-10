@@ -23,12 +23,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AccountServiceJPA implements AccountService {
 
-    @NonNull
     private final AccountRepository accountRepository;
-    @NonNull
     private final TransactionService transactionService;
-
-    @NonNull
     private final AccountMapper accountMapper;
 
     @Override
@@ -51,7 +47,7 @@ public class AccountServiceJPA implements AccountService {
 
     @Override
     public AccountDTO withdraw(String accountNumber, double amount) throws Exception {
-
+        String stringa;
         Account account = accountRepository.findByAccountNumber(accountNumber)
                 .orElseThrow(()-> new EntityNotFoundException("account not found with account number: " + accountNumber));
 

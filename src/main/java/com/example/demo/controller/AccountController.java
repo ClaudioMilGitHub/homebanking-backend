@@ -122,7 +122,7 @@ public class AccountController {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/all/account/{accountNumber}/withdraw")
+    @PostMapping("/user/account/{accountNumber}/withdraw")
     @Tag(
             name = "Account API",
             description = "Operations on application accounts"

@@ -11,6 +11,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 
@@ -56,4 +57,18 @@ public class ExceptionHandlerController {
 
         return ResponseEntity.badRequest().body(errorMessageDTO);
     }
+
+    @ExceptionHandler(ResponseStatusException.class)
+    public ResponseEntity<ErrorMessageDTO> responseStatusExceptionHandler (ResponseStatusException exception,
+                                                                           WebRequest request) {
+
+        ErrorMessageDTO errorMessageDTO = new ErrorMessageDTO();
+        errorMessageDTO.setTimestamp(LocalDateTime.now());
+        errorMessageDTO.setPath(request.getDescription(false));
+        errorMessageDTO.setMessage(exception.getMessage());
+        errorMessageDTO.setErrorType(HttpStatus.BAD_REQUEST.toString());
+
+        return ResponseEntity.badRequest().body(errorMessageDTO);
+    }
+
 }

@@ -1,9 +1,11 @@
 package com.example.demo.controller;
 
 import com.example.demo.dto.user.BaseUserRequestDTO;
+import com.example.demo.dto.user.LoginDTO;
 import com.example.demo.dto.user.UserDTO;
 import com.example.demo.error.ErrorMessageDTO;
 import com.example.demo.error.ValidationErrorDTO;
+import com.example.demo.security.JWTUtilities;
 import com.example.demo.service.definition.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -12,6 +14,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -25,6 +28,7 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
+    private final JWTUtilities jwtUtilities;
 
     @GetMapping("/all/user/findById/{id}")
     @Tag(
@@ -65,6 +69,13 @@ public class UserController {
     public ResponseEntity<UserDTO> findById (@Validated @PathVariable long id) throws Exception{
         return ResponseEntity.ok(
                 userService.findById(id)
+        );
+    }
+
+    @GetMapping("/all/user/findAll")
+    public ResponseEntity<List<UserDTO>> findAll () throws Exception {
+        return ResponseEntity.ok(
+                userService.findAll()
         );
     }
 
@@ -112,10 +123,23 @@ public class UserController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/all/user/findAll")
-    public ResponseEntity<List<UserDTO>> findAll () throws Exception {
-        return ResponseEntity.ok(
-                userService.findAll()
-        );
+    //register baseUser
+
+
+    //delete user
+
+
+    //login
+    @PostMapping("/all/user/login")
+    public ResponseEntity<Void> login(@RequestBody @Validated LoginDTO loginDTO) throws Exception {
+        UserDTO userDTO = userService.login(loginDTO);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.AUTHORIZATION, jwtUtilities.generateToken(userDTO))
+                .build();
     }
+
+
+    //register
+
+
 }
