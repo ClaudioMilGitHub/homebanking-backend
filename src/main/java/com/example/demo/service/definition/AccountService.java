@@ -2,7 +2,6 @@ package com.example.demo.service.definition;
 
 import com.example.demo.dto.account.AccountDTO;
 import com.example.demo.dto.account.AccountRequestDTO;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 

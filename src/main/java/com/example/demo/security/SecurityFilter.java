@@ -12,11 +12,13 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
+import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 
 import java.io.IOException;
 
+@Component
 public class SecurityFilter extends OncePerRequestFilter {
 
     private final UserDetailsService userDetailsService;
@@ -37,6 +39,7 @@ public class SecurityFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
         try {
+
             SecurityContext securityContext = SecurityContextHolder.getContext();
             boolean isUserAuthenticated = securityContext.getAuthentication()!=null;
             String authorizationHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
@@ -47,6 +50,7 @@ public class SecurityFilter extends OncePerRequestFilter {
             }
 
             String token = authorizationHeader.substring(7);
+            System.out.println(token);
             String username = jwtUtilities.getSubject(token);
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
@@ -59,6 +63,7 @@ public class SecurityFilter extends OncePerRequestFilter {
             upat.setDetails(new WebAuthenticationDetailsSource());
 
             securityContext.setAuthentication(upat);
+            filterChain.doFilter(request, response);
 
         } catch (Exception e) {
             exceptionResolver.resolveException(request, response, null, e);

@@ -7,15 +7,17 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
-
 public class SecurityConfig {
+
+    private final SecurityFilter securityFilter;
+
     @Bean
     SecurityFilterChain securityFilterChain (HttpSecurity http) throws Exception {
 
@@ -29,7 +31,7 @@ public class SecurityConfig {
                 });
         http.csrf(AbstractHttpConfigurer::disable);
         http.sessionManagement(t->t.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-        http.headers(t-> t.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable));
+        http.addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
 
     }
